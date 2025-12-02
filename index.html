@@ -1,12 +1,1533 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>我的网站001</title>
-    <link rel="stylesheet" href=".css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搭子自动匹配系统</title>
+    
+    <!-- 引入图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ============================
+           全局样式
+           ============================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* ============================
+           头部样式
+           ============================ */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            padding: 20px;
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        /* ============================
+           主内容区域
+           ============================ */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* ============================
+           卡片样式
+           ============================ */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #4b6cb7;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            font-size: 1.5rem;
+        }
+        
+        /* ============================
+           表单样式
+           ============================ */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-control, .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: #4b6cb7;
+            box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.2);
+        }
+        
+        /* ============================
+           兴趣标签
+           ============================ */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .tag {
+            background: #f0f0f0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            user-select: none;
+        }
+        
+        .tag:hover {
+            background: #e0e0e0;
+        }
+        
+        .tag.selected {
+            background: #4b6cb7;
+            color: white;
+        }
+        
+        /* ============================
+           按钮样式
+           ============================ */
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(75, 108, 183, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #4b6cb7;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+        
+        /* ============================
+           匹配结果显示
+           ============================ */
+        .match-result {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: none;
+        }
+        
+        .match-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .match-header h2 {
+            font-size: 2rem;
+            color: #4b6cb7;
+            margin-bottom: 10px;
+        }
+        
+        .match-score {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        /* ============================
+           匹配卡片
+           ============================ */
+        .match-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 5px solid #4b6cb7;
+        }
+        
+        .match-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .match-card-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .match-card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        
+        .match-tag {
+            background: #4b6cb7;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+        
+        .match-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .detail-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .detail-label {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .match-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        /* ============================
+           统计数据
+           ============================ */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #4b6cb7;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* ============================
+           动画效果
+           ============================ */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        /* ============================
+           响应式设计
+           ============================ */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .card-title {
+                font-size: 1.5rem;
+            }
+            
+            .match-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+        
+        /* ============================
+           加载动画
+           ============================ */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4b6cb7;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* ============================
+           空状态
+           ============================ */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            color: #ccc;
+        }
+        
+        /* ============================
+           底部
+           ============================ */
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            opacity: 0.8;
+        }
+    </style>
 </head>
 <body>
-    <h1>欢迎访问我的firspro_hr！</h1>
-    <p>这是一个通过http-server运行的网站。</p>
-    <script src=".js"></script>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1><i class="fas fa-users"></i> 搭子自动匹配系统</h1>
+            <p>找到志同道合的伙伴，一起学习、运动、娱乐！</p>
+        </div>
+        
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <!-- 个人信息录入 -->
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-user-edit"></i> 个人信息</h2>
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label for="name"><i class="fas fa-user"></i> 昵称</label>
+                        <input type="text" id="name" class="form-control" placeholder="请输入你的昵称" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-venus-mars"></i> 性别</label>
+                        <div style="display: flex; gap: 20px;">
+                            <label style="display: flex; align-items: center;">
+                                <input type="radio" name="gender" value="male" checked> 男生
+                            </label>
+                            <label style="display: flex; align-items: center;">
+                                <input type="radio" name="gender" value="female"> 女生
+                            </label>
+                            <label style="display: flex; align-items: center;">
+                                <input type="radio" name="gender" value="other"> 其他
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="age"><i class="fas fa-birthday-cake"></i> 年龄</label>
+                        <select id="age" class="form-select">
+                            <option value="">选择年龄</option>
+                            <option value="18-22">18-22岁</option>
+                            <option value="23-27">23-27岁</option>
+                            <option value="28-35">28-35岁</option>
+                            <option value="36-45">36-45岁</option>
+                            <option value="45+">45岁以上</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-graduation-cap"></i> 身份</label>
+                        <select id="identity" class="form-select">
+                            <option value="">选择身份</option>
+                            <option value="student">学生</option>
+                            <option value="worker">上班族</option>
+                            <option value="freelancer">自由职业</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="location"><i class="fas fa-map-marker-alt"></i> 所在区域</label>
+                        <input type="text" id="location" class="form-control" placeholder="例如：紫金港校区、玉泉校区">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-heart"></i> 兴趣爱好（选择1-5项）</label>
+                        <div class="tags-container" id="hobbyTags">
+                            <!-- 兴趣标签将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-search"></i> 寻找的搭子类型</label>
+                        <div class="tags-container" id="buddyTypeTags">
+                            <!-- 搭子类型标签将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description"><i class="fas fa-comment"></i> 个人描述</label>
+                        <textarea id="description" class="form-control" rows="3" placeholder="简单介绍一下自己，让搭子更了解你..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                        <i class="fas fa-save"></i> 保存个人信息
+                    </button>
+                </form>
+            </div>
+            
+            <!-- 匹配设置 -->
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-sliders-h"></i> 匹配设置</h2>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-filter"></i> 匹配算法优先级</label>
+                    <select id="algorithm" class="form-select">
+                        <option value="balanced">平衡匹配（综合考虑所有因素）</option>
+                        <option value="hobby">兴趣爱好优先</option>
+                        <option value="location">地理位置优先</option>
+                        <option value="age">年龄相近优先</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-transgender-alt"></i> 期望搭子性别</label>
+                    <div style="display: flex; gap: 20px;">
+                        <label style="display: flex; align-items: center;">
+                            <input type="radio" name="preferredGender" value="any" checked> 不限
+                        </label>
+                        <label style="display: flex; align-items: center;">
+                            <input type="radio" name="preferredGender" value="same"> 同性
+                        </label>
+                        <label style="display: flex; align-items: center;">
+                            <input type="radio" name="preferredGender" value="opposite"> 异性
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-user-friends"></i> 匹配人数</label>
+                    <select id="matchCount" class="form-select">
+                        <option value="3">3个搭子</option>
+                        <option value="5" selected>5个搭子</option>
+                        <option value="10">10个搭子</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-map-pin"></i> 最大距离限制</label>
+                    <select id="maxDistance" class="form-select">
+                        <option value="any">不限距离</option>
+                        <option value="same-campus">同校区</option>
+                        <option value="same-city">同城市</option>
+                        <option value="same-province">同省份</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-percentage"></i> 最低匹配度要求</label>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <input type="range" id="minMatchScore" min="0" max="100" value="60" style="flex-grow: 1;">
+                        <span id="scoreValue">60%</span>
+                    </div>
+                </div>
+                
+                <button id="matchBtn" class="btn btn-success" style="width: 100%; margin-top: 20px;">
+                    <i class="fas fa-magic"></i> 开始智能匹配
+                </button>
+                
+                <button id="clearBtn" class="btn btn-secondary" style="width: 100%; margin-top: 10px;">
+                    <i class="fas fa-trash-alt"></i> 清除历史匹配
+                </button>
+            </div>
+        </div>
+        
+        <!-- 匹配结果 -->
+        <div class="match-result" id="matchResult">
+            <div class="match-header">
+                <h2><i class="fas fa-handshake"></i> 匹配结果</h2>
+                <p>根据你的个人信息和匹配设置，系统为你找到了以下搭子</p>
+                <div class="match-score">匹配度算法：<span id="algorithmUsed">平衡匹配</span></div>
+            </div>
+            
+            <div id="matchList">
+                <!-- 匹配结果将通过JavaScript动态生成 -->
+            </div>
+            
+            <div class="empty-state" id="noMatches">
+                <i class="fas fa-search"></i>
+                <h3>暂无匹配结果</h3>
+                <p>调整匹配设置或等待更多用户加入系统</p>
+            </div>
+        </div>
+        
+        <!-- 加载动画 -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <h3>正在智能匹配中...</h3>
+            <p>系统正在为你寻找最合适的搭子</p>
+        </div>
+        
+        <!-- 统计数据 -->
+        <div class="stats-container" id="statsContainer">
+            <!-- 统计数据将通过JavaScript动态生成 -->
+        </div>
+        
+        <!-- 底部 -->
+        <div class="footer">
+            <p>© 2024 搭子自动匹配系统 | 本地数据存储，保护用户隐私</p>
+            <p>数据仅保存在你的浏览器中，不会上传到服务器</p>
+        </div>
+    </div>
+
+    <script>
+        /* ====================================================================
+           搭子自动匹配系统 JavaScript 代码
+           说明：这是一个纯前端的匹配系统，使用浏览器的localStorage存储用户数据
+           所有匹配计算都在本地完成，保护用户隐私
+           ==================================================================== */
+        
+        // 系统配置
+        const CONFIG = {
+            STORAGE_KEY: 'buddy_matching_users',
+            CURRENT_USER_KEY: 'buddy_current_user',
+            MATCH_HISTORY_KEY: 'buddy_match_history',
+            INTERESTS: [
+                '学习搭子', '运动健身', '游戏开黑', '美食探店', 
+                '旅游出行', '电影音乐', '读书分享', '摄影约拍',
+                '户外徒步', '桌游剧本杀', 'K歌聚会', '语言学习',
+                '技能交换', '考研考公', '创业合作', '宠物交流'
+            ],
+            BUDDY_TYPES: [
+                '学习伙伴', '健身搭档', '饭友', '旅游同伴',
+                '游戏队友', '电影搭子', '读书会友', '摄影伙伴',
+                '运动伙伴', '聊天朋友', '学习监督', '技能交换'
+            ]
+        };
+        
+        // DOM元素引用
+        const elements = {
+            // 表单元素
+            profileForm: document.getElementById('profileForm'),
+            name: document.getElementById('name'),
+            age: document.getElementById('age'),
+            identity: document.getElementById('identity'),
+            location: document.getElementById('location'),
+            description: document.getElementById('description'),
+            algorithm: document.getElementById('algorithm'),
+            matchCount: document.getElementById('matchCount'),
+            maxDistance: document.getElementById('maxDistance'),
+            minMatchScore: document.getElementById('minMatchScore'),
+            scoreValue: document.getElementById('scoreValue'),
+            
+            // 按钮
+            matchBtn: document.getElementById('matchBtn'),
+            clearBtn: document.getElementById('clearBtn'),
+            
+            // 结果区域
+            matchResult: document.getElementById('matchResult'),
+            matchList: document.getElementById('matchList'),
+            noMatches: document.getElementById('noMatches'),
+            algorithmUsed: document.getElementById('algorithmUsed'),
+            
+            // 其他
+            loading: document.getElementById('loading'),
+            statsContainer: document.getElementById('statsContainer'),
+            hobbyTags: document.getElementById('hobbyTags'),
+            buddyTypeTags: document.getElementById('buddyTypeTags')
+        };
+        
+        // 全局变量
+        let currentUser = null;
+        let allUsers = [];
+        let matchHistory = [];
+        
+        /* ====================================================================
+           初始化函数
+           ==================================================================== */
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('搭子匹配系统初始化...');
+            
+            // 加载数据
+            loadData();
+            
+            // 初始化兴趣标签
+            initInterestTags();
+            
+            // 初始化搭子类型标签
+            initBuddyTypeTags();
+            
+            // 绑定事件
+            bindEvents();
+            
+            // 更新滑块显示
+            updateScoreValue();
+            
+            // 显示统计数据
+            updateStats();
+        });
+        
+        /* ====================================================================
+           数据加载
+           ==================================================================== */
+        function loadData() {
+            // 加载所有用户
+            const usersJson = localStorage.getItem(CONFIG.STORAGE_KEY);
+            allUsers = usersJson ? JSON.parse(usersJson) : [];
+            
+            // 加载当前用户
+            const currentUserJson = localStorage.getItem(CONFIG.CURRENT_USER_KEY);
+            currentUser = currentUserJson ? JSON.parse(currentUserJson) : null;
+            
+            // 加载匹配历史
+            const historyJson = localStorage.getItem(CONFIG.MATCH_HISTORY_KEY);
+            matchHistory = historyJson ? JSON.parse(historyJson) : [];
+            
+            console.log(`系统数据加载完成：${allUsers.length}个用户，${matchHistory.length}条匹配记录`);
+            
+            // 如果存在当前用户，填充表单
+            if (currentUser) {
+                loadCurrentUserData();
+            }
+        }
+        
+        /* ====================================================================
+           初始化兴趣标签
+           ==================================================================== */
+        function initInterestTags() {
+            elements.hobbyTags.innerHTML = '';
+            
+            CONFIG.INTERESTS.forEach(interest => {
+                const tag = document.createElement('div');
+                tag.className = 'tag';
+                tag.textContent = interest;
+                tag.dataset.value = interest;
+                
+                tag.addEventListener('click', function() {
+                    // 限制最多选择5个
+                    const selectedTags = elements.hobbyTags.querySelectorAll('.tag.selected');
+                    if (selectedTags.length >= 5 && !this.classList.contains('selected')) {
+                        alert('最多选择5个兴趣爱好');
+                        return;
+                    }
+                    
+                    this.classList.toggle('selected');
+                });
+                
+                elements.hobbyTags.appendChild(tag);
+            });
+        }
+        
+        /* ====================================================================
+           初始化搭子类型标签
+           ==================================================================== */
+        function initBuddyTypeTags() {
+            elements.buddyTypeTags.innerHTML = '';
+            
+            CONFIG.BUDDY_TYPES.forEach(type => {
+                const tag = document.createElement('div');
+                tag.className = 'tag';
+                tag.textContent = type;
+                tag.dataset.value = type;
+                
+                tag.addEventListener('click', function() {
+                    // 限制最多选择3个
+                    const selectedTags = elements.buddyTypeTags.querySelectorAll('.tag.selected');
+                    if (selectedTags.length >= 3 && !this.classList.contains('selected')) {
+                        alert('最多选择3个搭子类型');
+                        return;
+                    }
+                    
+                    this.classList.toggle('selected');
+                });
+                
+                elements.buddyTypeTags.appendChild(tag);
+            });
+        }
+        
+        /* ====================================================================
+           加载当前用户数据到表单
+           ==================================================================== */
+        function loadCurrentUserData() {
+            if (!currentUser) return;
+            
+            // 基本信息
+            elements.name.value = currentUser.name || '';
+            elements.age.value = currentUser.age || '';
+            elements.identity.value = currentUser.identity || '';
+            elements.location.value = currentUser.location || '';
+            elements.description.value = currentUser.description || '';
+            
+            // 性别
+            if (currentUser.gender) {
+                document.querySelector(`input[name="gender"][value="${currentUser.gender}"]`).checked = true;
+            }
+            
+            // 兴趣爱好
+            if (currentUser.interests && Array.isArray(currentUser.interests)) {
+                currentUser.interests.forEach(interest => {
+                    const tag = elements.hobbyTags.querySelector(`[data-value="${interest}"]`);
+                    if (tag) tag.classList.add('selected');
+                });
+            }
+            
+            // 搭子类型
+            if (currentUser.buddyTypes && Array.isArray(currentUser.buddyTypes)) {
+                currentUser.buddyTypes.forEach(type => {
+                    const tag = elements.buddyTypeTags.querySelector(`[data-value="${type}"]`);
+                    if (tag) tag.classList.add('selected');
+                });
+            }
+            
+            console.log('当前用户数据已加载到表单');
+        }
+        
+        /* ====================================================================
+           绑定事件
+           ==================================================================== */
+        function bindEvents() {
+            // 个人信息表单提交
+            elements.profileForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveProfile();
+            });
+            
+            // 匹配按钮
+            elements.matchBtn.addEventListener('click', function() {
+                if (!currentUser) {
+                    alert('请先保存个人信息');
+                    return;
+                }
+                
+                startMatching();
+            });
+            
+            // 清除历史按钮
+            elements.clearBtn.addEventListener('click', function() {
+                if (confirm('确定要清除所有匹配历史吗？')) {
+                    clearMatchHistory();
+                }
+            });
+            
+            // 滑块事件
+            elements.minMatchScore.addEventListener('input', updateScoreValue);
+        }
+        
+        /* ====================================================================
+           更新滑块显示
+           ==================================================================== */
+        function updateScoreValue() {
+            elements.scoreValue.textContent = `${elements.minMatchScore.value}%`;
+        }
+        
+        /* ====================================================================
+           保存个人信息
+           ==================================================================== */
+        function saveProfile() {
+            // 收集表单数据
+            const name = elements.name.value.trim();
+            if (!name) {
+                alert('请输入昵称');
+                return;
+            }
+            
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            const age = elements.age.value;
+            const identity = elements.identity.value;
+            const location = elements.location.value.trim();
+            const description = elements.description.value.trim();
+            
+            // 收集选中的兴趣标签
+            const interests = [];
+            elements.hobbyTags.querySelectorAll('.tag.selected').forEach(tag => {
+                interests.push(tag.dataset.value);
+            });
+            
+            if (interests.length === 0) {
+                alert('请至少选择一个兴趣爱好');
+                return;
+            }
+            
+            // 收集选中的搭子类型标签
+            const buddyTypes = [];
+            elements.buddyTypeTags.querySelectorAll('.tag.selected').forEach(tag => {
+                buddyTypes.push(tag.dataset.value);
+            });
+            
+            if (buddyTypes.length === 0) {
+                alert('请至少选择一个搭子类型');
+                return;
+            }
+            
+            // 匹配设置
+            const preferredGender = document.querySelector('input[name="preferredGender"]:checked').value;
+            
+            // 创建/更新用户对象
+            currentUser = {
+                id: currentUser ? currentUser.id : generateId(),
+                name,
+                gender,
+                age,
+                identity,
+                location,
+                description,
+                interests,
+                buddyTypes,
+                preferredGender,
+                createdAt: currentUser ? currentUser.createdAt : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            // 保存当前用户
+            localStorage.setItem(CONFIG.CURRENT_USER_KEY, JSON.stringify(currentUser));
+            
+            // 保存到所有用户列表（如果不存在则添加）
+            const userIndex = allUsers.findIndex(u => u.id === currentUser.id);
+            if (userIndex === -1) {
+                allUsers.push(currentUser);
+            } else {
+                allUsers[userIndex] = currentUser;
+            }
+            
+            localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(allUsers));
+            
+            // 更新统计数据
+            updateStats();
+            
+            // 显示成功消息
+            alert(`个人信息保存成功！\n\n系统中有 ${allUsers.length} 个用户，可以开始匹配了。`);
+            
+            console.log('个人信息保存成功:', currentUser);
+        }
+        
+        /* ====================================================================
+           生成唯一ID
+           ==================================================================== */
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+        
+        /* ====================================================================
+           开始匹配
+           ==================================================================== */
+        function startMatching() {
+            // 显示加载动画
+            elements.loading.style.display = 'block';
+            elements.matchResult.style.display = 'none';
+            
+            // 获取匹配设置
+            const algorithm = elements.algorithm.value;
+            const matchCount = parseInt(elements.matchCount.value);
+            const maxDistance = elements.maxDistance.value;
+            const minMatchScore = parseInt(elements.minMatchScore.value);
+            
+            // 模拟匹配过程（实际应该立即执行，这里用setTimeout模拟网络延迟）
+            setTimeout(() => {
+                // 执行匹配算法
+                const matches = findMatches(algorithm, matchCount, maxDistance, minMatchScore);
+                
+                // 隐藏加载动画
+                elements.loading.style.display = 'none';
+                
+                // 显示匹配结果
+                displayMatches(matches, algorithm);
+                
+                // 记录匹配历史
+                recordMatchHistory(matches, algorithm);
+                
+                // 更新统计数据
+                updateStats();
+            }, 1500);
+        }
+        
+        /* ====================================================================
+           匹配算法
+           ==================================================================== */
+        function findMatches(algorithm, matchCount, maxDistance, minMatchScore) {
+            // 过滤掉自己
+            const otherUsers = allUsers.filter(user => user.id !== currentUser.id);
+            
+            if (otherUsers.length === 0) {
+                return [];
+            }
+            
+            // 为每个用户计算匹配度
+            const scoredUsers = otherUsers.map(user => {
+                const score = calculateMatchScore(user, algorithm);
+                return { user, score };
+            });
+            
+            // 过滤掉匹配度低于阈值的用户
+            const filteredUsers = scoredUsers.filter(item => item.score >= minMatchScore);
+            
+            // 根据匹配度排序
+            filteredUsers.sort((a, b) => b.score - a.score);
+            
+            // 限制返回数量
+            const matches = filteredUsers.slice(0, matchCount);
+            
+            console.log(`匹配完成：找到 ${matches.length} 个搭子`);
+            return matches;
+        }
+        
+        /* ====================================================================
+           计算匹配度
+           ==================================================================== */
+        function calculateMatchScore(targetUser, algorithm) {
+            let totalScore = 0;
+            let maxPossibleScore = 0;
+            
+            // 1. 兴趣匹配（权重：40%）
+            const interestScore = calculateInterestScore(targetUser.interests, currentUser.interests);
+            totalScore += interestScore * 0.4;
+            maxPossibleScore += 100 * 0.4;
+            
+            // 2. 搭子类型匹配（权重：30%）
+            const buddyTypeScore = calculateBuddyTypeScore(targetUser.buddyTypes, currentUser.buddyTypes);
+            totalScore += buddyTypeScore * 0.3;
+            maxPossibleScore += 100 * 0.3;
+            
+            // 3. 地理位置匹配（权重：20%）
+            const locationScore = calculateLocationScore(targetUser.location, currentUser.location);
+            totalScore += locationScore * 0.2;
+            maxPossibleScore += 100 * 0.2;
+            
+            // 4. 年龄匹配（权重：10%）
+            const ageScore = calculateAgeScore(targetUser.age, currentUser.age);
+            totalScore += ageScore * 0.1;
+            maxPossibleScore += 100 * 0.1;
+            
+            // 根据算法调整权重
+            let adjustedScore = totalScore;
+            if (algorithm === 'hobby') {
+                // 兴趣爱好优先：增加兴趣权重
+                adjustedScore = interestScore * 0.6 + buddyTypeScore * 0.2 + locationScore * 0.1 + ageScore * 0.1;
+            } else if (algorithm === 'location') {
+                // 地理位置优先：增加位置权重
+                adjustedScore = interestScore * 0.2 + buddyTypeScore * 0.2 + locationScore * 0.5 + ageScore * 0.1;
+            } else if (algorithm === 'age') {
+                // 年龄相近优先：增加年龄权重
+                adjustedScore = interestScore * 0.2 + buddyTypeScore * 0.2 + locationScore * 0.2 + ageScore * 0.4;
+            }
+            
+            // 确保分数在0-100之间
+            const finalScore = Math.min(Math.max(Math.round(adjustedScore), 0), 100);
+            
+            return finalScore;
+        }
+        
+        /* ====================================================================
+           计算兴趣匹配度
+           ==================================================================== */
+        function calculateInterestScore(userInterests, currentInterests) {
+            if (!userInterests || !currentInterests) return 0;
+            
+            // 计算交集
+            const commonInterests = userInterests.filter(interest => 
+                currentInterests.includes(interest)
+            );
+            
+            // 计算匹配度（共同兴趣数 / 当前用户兴趣数 * 100）
+            const score = (commonInterests.length / currentInterests.length) * 100;
+            
+            return Math.min(score, 100);
+        }
+        
+        /* ====================================================================
+           计算搭子类型匹配度
+           ==================================================================== */
+        function calculateBuddyTypeScore(userBuddyTypes, currentBuddyTypes) {
+            if (!userBuddyTypes || !currentBuddyTypes) return 0;
+            
+            // 计算交集
+            const commonTypes = userBuddyTypes.filter(type => 
+                currentBuddyTypes.includes(type)
+            );
+            
+            // 计算匹配度（共同类型数 / 当前用户类型数 * 100）
+            const score = (commonTypes.length / currentBuddyTypes.length) * 100;
+            
+            return Math.min(score, 100);
+        }
+        
+        /* ====================================================================
+           计算地理位置匹配度
+           ==================================================================== */
+        function calculateLocationScore(userLocation, currentLocation) {
+            if (!userLocation || !currentLocation) return 50; // 默认50分
+            
+            // 简单的位置匹配逻辑
+            if (userLocation === currentLocation) {
+                return 100; // 完全相同
+            }
+            
+            // 检查是否包含相同关键词（例如都包含"紫金港"）
+            const userWords = userLocation.split(/[校区区]/);
+            const currentWords = currentLocation.split(/[校区区]/);
+            
+            for (const word of userWords) {
+                if (word && currentWords.includes(word)) {
+                    return 80; // 部分匹配
+                }
+            }
+            
+            return 30; // 不匹配
+        }
+        
+        /* ====================================================================
+           计算年龄匹配度
+           ==================================================================== */
+        function calculateAgeScore(userAge, currentAge) {
+            if (!userAge || !currentAge) return 50; // 默认50分
+            
+            // 将年龄范围转换为数字
+            const getAgeValue = (ageRange) => {
+                if (ageRange === '18-22') return 20;
+                if (ageRange === '23-27') return 25;
+                if (ageRange === '28-35') return 31;
+                if (ageRange === '36-45') return 40;
+                if (ageRange === '45+') return 50;
+                return 25; // 默认
+            };
+            
+            const userAgeValue = getAgeValue(userAge);
+            const currentAgeValue = getAgeValue(currentAge);
+            
+            // 计算年龄差
+            const ageDiff = Math.abs(userAgeValue - currentAgeValue);
+            
+            // 年龄差越小，匹配度越高
+            if (ageDiff <= 2) return 100;
+            if (ageDiff <= 5) return 80;
+            if (ageDiff <= 10) return 60;
+            return 30;
+        }
+        
+        /* ====================================================================
+           显示匹配结果
+           ==================================================================== */
+        function displayMatches(matches, algorithm) {
+            // 更新算法显示
+            let algorithmText = '平衡匹配';
+            if (algorithm === 'hobby') algorithmText = '兴趣爱好优先';
+            if (algorithm === 'location') algorithmText = '地理位置优先';
+            if (algorithm === 'age') algorithmText = '年龄相近优先';
+            elements.algorithmUsed.textContent = algorithmText;
+            
+            // 清空匹配列表
+            elements.matchList.innerHTML = '';
+            
+            // 如果没有匹配结果
+            if (matches.length === 0) {
+                elements.noMatches.style.display = 'block';
+            } else {
+                elements.noMatches.style.display = 'none';
+                
+                // 显示每个匹配结果
+                matches.forEach((match, index) => {
+                    const matchCard = createMatchCard(match, index + 1);
+                    elements.matchList.appendChild(matchCard);
+                });
+            }
+            
+            // 显示匹配结果区域
+            elements.matchResult.style.display = 'block';
+            elements.matchResult.classList.add('fade-in');
+            
+            // 滚动到匹配结果区域
+            elements.matchResult.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        /* ====================================================================
+           创建匹配卡片
+           ==================================================================== */
+        function createMatchCard(match, rank) {
+            const { user, score } = match;
+            
+            const card = document.createElement('div');
+            card.className = 'match-card fade-in';
+            card.style.animationDelay = `${rank * 0.1}s`;
+            
+            // 根据排名添加特殊样式
+            if (rank === 1) {
+                card.style.borderLeftColor = '#ffd700'; // 金色边框
+            } else if (rank === 2) {
+                card.style.borderLeftColor = '#c0c0c0'; // 银色边框
+            } else if (rank === 3) {
+                card.style.borderLeftColor = '#cd7f32'; // 铜色边框
+            }
+            
+            // 性别图标
+            const genderIcon = user.gender === 'male' ? '♂' : 
+                              user.gender === 'female' ? '♀' : '⚧';
+            
+            // 匹配度颜色
+            let scoreColor = '#e74c3c'; // 红色（低）
+            if (score >= 70) scoreColor = '#2ecc71'; // 绿色（高）
+            else if (score >= 50) scoreColor = '#f39c12'; // 橙色（中）
+            
+            card.innerHTML = `
+                <div class="match-card-header">
+                    <div>
+                        <span class="match-card-name">${user.name} ${genderIcon}</span>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                            <span style="font-size: 14px; color: #666;">${user.age} · ${user.identity}</span>
+                            ${user.location ? `<span style="font-size: 14px; color: #666;"><i class="fas fa-map-marker-alt"></i> ${user.location}</span>` : ''}
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 12px; color: #666;">匹配度</div>
+                        <div style="font-size: 24px; font-weight: bold; color: ${scoreColor};">${score}%</div>
+                    </div>
+                </div>
+                
+                ${user.description ? `<p style="margin: 15px 0; color: #555; line-height: 1.5;">${user.description}</p>` : ''}
+                
+                <div class="match-card-tags">
+                    ${user.interests.map(interest => 
+                        `<span class="match-tag" style="background: #4b6cb7;">${interest}</span>`
+                    ).join('')}
+                </div>
+                
+                <div class="match-details">
+                    <div class="detail-item">
+                        <div class="detail-label">共同兴趣</div>
+                        <div class="detail-value">${calculateCommonInterests(user.interests, currentUser.interests)}个</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">搭子类型</div>
+                        <div class="detail-value">${calculateCommonBuddyTypes(user.buddyTypes, currentUser.buddyTypes)}个</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">匹配排名</div>
+                        <div class="detail-value">第${rank}名</div>
+                    </div>
+                </div>
+                
+                <div class="match-actions">
+                    <button class="btn btn-primary" onclick="contactBuddy('${user.id}')">
+                        <i class="fas fa-comment"></i> 联系搭子
+                    </button>
+                    <button class="btn btn-secondary" onclick="saveMatch('${user.id}')">
+                        <i class="fas fa-star"></i> 收藏搭子
+                    </button>
+                    <button class="btn btn-secondary" onclick="reportUser('${user.id}')">
+                        <i class="fas fa-flag"></i> 举报
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        /* ====================================================================
+           计算共同兴趣数量
+           ==================================================================== */
+        function calculateCommonInterests(userInterests, currentInterests) {
+            if (!userInterests || !currentInterests) return 0;
+            return userInterests.filter(interest => currentInterests.includes(interest)).length;
+        }
+        
+        /* ====================================================================
+           计算共同搭子类型数量
+           ==================================================================== */
+        function calculateCommonBuddyTypes(userTypes, currentTypes) {
+            if (!userTypes || !currentTypes) return 0;
+            return userTypes.filter(type => currentTypes.includes(type)).length;
+        }
+        
+        /* ====================================================================
+           记录匹配历史
+           ==================================================================== */
+        function recordMatchHistory(matches, algorithm) {
+            const historyItem = {
+                id: generateId(),
+                timestamp: new Date().toISOString(),
+                algorithm: algorithm,
+                matches: matches.map(match => ({
+                    userId: match.user.id,
+                    name: match.user.name,
+                    score: match.score
+                }))
+            };
+            
+            matchHistory.unshift(historyItem);
+            
+            // 只保留最近20条记录
+            if (matchHistory.length > 20) {
+                matchHistory = matchHistory.slice(0, 20);
+            }
+            
+            localStorage.setItem(CONFIG.MATCH_HISTORY_KEY, JSON.stringify(matchHistory));
+            
+            console.log('匹配历史已保存');
+        }
+        
+        /* ====================================================================
+           清除匹配历史
+           ==================================================================== */
+        function clearMatchHistory() {
+            matchHistory = [];
+            localStorage.setItem(CONFIG.MATCH_HISTORY_KEY, JSON.stringify(matchHistory));
+            
+            // 更新统计数据
+            updateStats();
+            
+            alert('匹配历史已清除');
+        }
+        
+        /* ====================================================================
+           更新统计数据
+           ==================================================================== */
+        function updateStats() {
+            const stats = {
+                totalUsers: allUsers.length,
+                currentUser: currentUser ? 1 : 0,
+                matchHistoryCount: matchHistory.length,
+                averageMatches: matchHistory.length > 0 ? 
+                    Math.round(matchHistory.reduce((sum, item) => sum + item.matches.length, 0) / matchHistory.length) : 0
+            };
+            
+            elements.statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.totalUsers}</div>
+                    <div class="stat-label">系统总用户数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.currentUser}</div>
+                    <div class="stat-label">已登录用户</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.matchHistoryCount}</div>
+                    <div class="stat-label">匹配记录数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.averageMatches}</div>
+                    <div class="stat-label">平均匹配数/次</div>
+                </div>
+            `;
+        }
+        
+        /* ====================================================================
+           联系搭子
+           ==================================================================== */
+        function contactBuddy(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+            
+            // 模拟联系功能
+            alert(`联系功能演示\n\n已向 ${user.name} 发送联系请求\n\n实际应用中这里会打开聊天界面或显示联系方式`);
+        }
+        
+        /* ====================================================================
+           收藏搭子
+           ==================================================================== */
+        function saveMatch(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+            
+            // 获取收藏列表
+            const favorites = JSON.parse(localStorage.getItem('buddy_favorites') || '[]');
+            
+            // 检查是否已收藏
+            if (favorites.some(fav => fav.id === userId)) {
+                alert('该搭子已在收藏列表中');
+                return;
+            }
+            
+            // 添加到收藏
+            favorites.push({
+                id: user.id,
+                name: user.name,
+                savedAt: new Date().toISOString()
+            });
+            
+            localStorage.setItem('buddy_favorites', JSON.stringify(favorites));
+            
+            alert(`已收藏搭子：${user.name}\n\n可以在浏览器控制台查看收藏列表`);
+            console.log('收藏列表:', favorites);
+        }
+        
+        /* ====================================================================
+           举报用户
+           ==================================================================== */
+        function reportUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+            
+            const reason = prompt(`举报用户：${user.name}\n\n请简要说明举报原因：`);
+            if (reason) {
+                // 模拟举报功能
+                alert(`举报已提交\n\n用户：${user.name}\n原因：${reason}\n\n管理员将会审核此举报`);
+                
+                // 记录举报（本地模拟）
+                const reports = JSON.parse(localStorage.getItem('buddy_reports') || '[]');
+                reports.push({
+                    userId: user.id,
+                    userName: user.name,
+                    reason: reason,
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem('buddy_reports', JSON.stringify(reports));
+            }
+        }
+        
+        /* ====================================================================
+           调试功能
+           ==================================================================== */
+        console.log('=== 搭子自动匹配系统已加载 ===');
+        console.log('可用调试命令:');
+        console.log('- addSampleUsers() - 添加示例用户');
+        console.log('- clearAllData() - 清除所有数据');
+        console.log('- showAllUsers() - 显示所有用户');
+        
+        // 添加示例用户函数（调试用）
+        window.addSampleUsers = function() {
+            const sampleUsers = [
+                {
+                    id: 'sample1',
+                    name: '小明',
+                    gender: 'male',
+                    age: '23-27',
+                    identity: '学生',
+                    location: '紫金港校区',
+                    description: '热爱运动，喜欢打篮球和跑步，寻找运动搭子',
+                    interests: ['运动健身', '户外徒步', '游戏开黑'],
+                    buddyTypes: ['运动伙伴', '健身搭档', '游戏队友'],
+                    preferredGender: 'any',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
+                {
+                    id: 'sample2',
+                    name: '小红',
+                    gender: 'female',
+                    age: '18-22',
+                    identity: '学生',
+                    location: '玉泉校区',
+                    description: '喜欢读书和看电影，想找一起学习的伙伴',
+                    interests: ['读书分享', '电影音乐', '学习搭子'],
+                    buddyTypes: ['学习伙伴', '读书会友', '电影搭子'],
+                    preferredGender: 'same',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
+                {
+                    id: 'sample3',
+                    name: '小刚',
+                    gender: 'male',
+                    age: '28-35',
+                    identity: '上班族',
+                    location: '西湖区',
+                    description: '程序员，喜欢桌游和摄影，周末想找人一起玩',
+                    interests: ['桌游剧本杀', '摄影约拍', '美食探店'],
+                    buddyTypes: ['游戏队友', '摄影伙伴', '饭友'],
+                    preferredGender: 'any',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                }
+            ];
+            
+            // 添加到用户列表
+            sampleUsers.forEach(user => {
+                if (!allUsers.some(u => u.id === user.id)) {
+                    allUsers.push(user);
+                }
+            });
+            
+            // 保存到localStorage
+            localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(allUsers));
+            
+            // 更新统计数据
+            updateStats();
+            
+            alert(`已添加 ${sampleUsers.length} 个示例用户\n\n现在系统中有 ${allUsers.length} 个用户`);
+            console.log('示例用户已添加:', sampleUsers);
+        };
+        
+        // 清除所有数据函数（调试用）
+        window.clearAllData = function() {
+            if (confirm('确定要清除所有数据吗？包括用户信息和匹配历史？')) {
+                localStorage.removeItem(CONFIG.STORAGE_KEY);
+                localStorage.removeItem(CONFIG.CURRENT_USER_KEY);
+                localStorage.removeItem(CONFIG.MATCH_HISTORY_KEY);
+                localStorage.removeItem('buddy_favorites');
+                localStorage.removeItem('buddy_reports');
+                
+                allUsers = [];
+                currentUser = null;
+                matchHistory = [];
+                
+                // 重置表单
+                elements.profileForm.reset();
+                elements.hobbyTags.querySelectorAll('.tag.selected').forEach(tag => {
+                    tag.classList.remove('selected');
+                });
+                elements.buddyTypeTags.querySelectorAll('.tag.selected').forEach(tag => {
+                    tag.classList.remove('selected');
+                });
+                
+                // 更新统计数据
+                updateStats();
+                
+                alert('所有数据已清除');
+                console.log('所有数据已清除');
+            }
+        };
+        
+        // 显示所有用户函数（调试用）
+        window.showAllUsers = function() {
+            console.log('系统所有用户:', allUsers);
+            alert(`系统中有 ${allUsers.length} 个用户\n\n详细信息请查看浏览器控制台（F12）`);
+        };
+    </script>
 </body>
 </html>
